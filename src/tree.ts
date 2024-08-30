@@ -1,7 +1,7 @@
 import path = require("path");
 import * as vscode from "vscode";
 import { ExtensionManager } from "./manager";
-import { Argument, Command, Manifest, Preference, readManifestFileSync } from "./manifest";
+import { AIAttachmentProvider, Argument, Command, Manifest, Preference, readManifestFileSync } from "./manifest";
 import { fileExistsSync, getModTimeSync } from "./utils";
 import * as semver from "semver";
 
@@ -60,6 +60,7 @@ export class RaycastTreeDataProvider implements vscode.TreeDataProvider<RaycastT
       items.push(
         ...[
           new CommandsTreeItem(vscode.TreeItemCollapsibleState.Expanded),
+          new AttachmentsTreeItem(vscode.TreeItemCollapsibleState.Expanded),
           new PreferencesTreeItem(vscode.TreeItemCollapsibleState.Collapsed),
         ],
       );
@@ -79,6 +80,13 @@ export class RaycastTreeDataProvider implements vscode.TreeDataProvider<RaycastT
                   ? vscode.TreeItemCollapsibleState.Collapsed
                   : vscode.TreeItemCollapsibleState.None,
               ),
+          ),
+        );
+      } else if (element instanceof AttachmentsTreeItem) {
+        const attachments = mani?.attachments || [];
+        return Promise.resolve(
+          attachments.map(
+            (c) => new AttachmentTreeItem(c, this.manager, this.manifest, vscode.TreeItemCollapsibleState.None),
           ),
         );
       } else if (element instanceof PreferencesTreeItem) {
@@ -237,6 +245,39 @@ export class CommandTreeItem extends RaycastTreeItem {
     }
     this.command = {
       command: "raycast.opencommand",
+      title: "",
+      arguments: [this],
+    };
+  }
+}
+
+class AttachmentsTreeItem extends RaycastTreeItem {
+  constructor(public readonly collapsibleState: vscode.TreeItemCollapsibleState) {
+    super("AI Attachment Providers", collapsibleState);
+    this.contextValue = "attachments";
+    this.iconPath = new vscode.ThemeIcon("terminal");
+  }
+}
+
+export class AttachmentTreeItem extends RaycastTreeItem {
+  constructor(
+    public readonly attachment: AIAttachmentProvider,
+    public readonly manager: ExtensionManager,
+    public readonly manifest: Manifest | undefined,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+  ) {
+    super(attachment.title || attachment.name || "?", collapsibleState);
+    this.tooltip = attachment.description;
+    this.contextValue = "attachment";
+    const ws = manager.getActiveWorkspace();
+    if (ws) {
+      const assetName: string | undefined = attachment.icon ? attachment.icon : manifest?.icon;
+      if (assetName) {
+        this.iconPath = path.join(ws.uri.fsPath, "assets", assetName);
+      }
+    }
+    this.command = {
+      command: "raycast.openattachment",
       title: "",
       arguments: [this],
     };

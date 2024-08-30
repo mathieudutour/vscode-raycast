@@ -24,6 +24,7 @@
     "onCommand:raycast.addcommand",
     "onCommand:raycast.addpreference",
     "onCommand:raycast.addcommandpreference",
+    "onCommand:raycast.addattachment",
     "onCommand:raycast.insertimageasset",
     "onCommand:raycast.login",
     "onCommand:raycast.publish",
@@ -36,6 +37,7 @@
     "onCommand:raycast.goto.command.interval",
     "onCommand:raycast.updateinternalstate",
     "onCommand:raycast.opencommand",
+    "onCommand:raycast.openattachment",
     "onCommand:raycast.addswiftsupport",
     "onView:raycast",
     "workspaceContains:package.json"
@@ -84,6 +86,11 @@
         "category": "Raycast"
       },
       {
+        "command": "raycast.openattachment",
+        "title": "Open AI Attachment Provider File",
+        "category": "Raycast"
+      },
+      {
         "command": "raycast.searchdocs",
         "title": "Search Documentation",
         "category": "Raycast"
@@ -114,6 +121,12 @@
       {
         "command": "raycast.command.arguments.add",
         "title": "Add Command Argument",
+        "category": "Raycast",
+        "icon": "$(add)"
+      },
+      {
+        "command": "raycast.addattachment",
+        "title": "Add AI Attachment Provider",
         "category": "Raycast",
         "icon": "$(add)"
       },
@@ -183,6 +196,12 @@
         "title": "Go to Command Argument Manifest Location",
         "category": "Raycast",
         "icon": "$(code)"
+      },
+      {
+        "command": "raycast.goto.attachment",
+        "title": "Go to AI Attachment Provider Manifest Location",
+        "category": "Raycast",
+        "icon": "$(code)"
       }
     ],
     "menus": {
@@ -231,6 +250,14 @@
           "when": "raycast.workspaceEnabled"
         },
         {
+          "command": "raycast.addattachment",
+          "when": "raycast.workspaceEnabled"
+        },
+        {
+          "command": "raycast.openattachment",
+          "when": "raycast.workspaceEnabled"
+        },
+        {
           "command": "raycast.insertimageasset",
           "when": "resourceExtname && !editorReadonly && raycast.workspaceEnabled"
         },
@@ -252,6 +279,10 @@
         },
         {
           "command": "raycast.goto.command",
+          "when": "raycast.workspaceEnabled"
+        },
+        {
+          "command": "raycast.goto.attachment",
           "when": "raycast.workspaceEnabled"
         },
         {
@@ -309,6 +340,16 @@
         {
           "command": "raycast.command.arguments.add",
           "when": "view == raycast && viewItem == command-arguments",
+          "group": "inline"
+        },
+        {
+          "command": "raycast.addattachment",
+          "when": "view == raycast && viewItem == attachments",
+          "group": "inline"
+        },
+        {
+          "command": "raycast.goto.attachment",
+          "when": "view == raycast && viewItem == attachment",
           "group": "inline"
         },
         {

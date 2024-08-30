@@ -7,6 +7,7 @@ import { runMigrationCmd } from "./commands/migration";
 import { ExtensionManager } from "./manager";
 import { searchDocsCmd } from "./commands/searchdocs";
 import { addCommandCmd } from "./commands/addCommand";
+import { addAttachmentCmd } from "./commands/addAttachment";
 import { addPreferenceCmd } from "./commands/addPreference";
 import { insertImageAssetCmd } from "./commands/insertimageasset";
 import { loginCmd } from "./commands/login";
@@ -19,12 +20,14 @@ import { addCommandPreferenceCmd } from "./commands/addCommandPreference";
 import { gotoCommandModeManifestLocationCmd } from "./commands/goto/mode";
 import { gotoCommandIntervalManifestLocationCmd } from "./commands/goto/interval";
 import { openCommandCmd } from "./commands/opencommand";
+import { openAttachmentCmd } from "./commands/openattachment";
 import { gotoCommandArgumentManifestLocationCmd } from "./commands/goto/argument";
 import { addCommandArgumentCmd } from "./commands/addCommandArgument";
 import { updateInternalState } from "./commands/updateInternalState";
 import { gotoCommandDisabledByDefaultManifestLocationCmd } from "./commands/goto/disabledByDefault";
 import { extensionIssuesCmd } from "./commands/extensionIssues";
 import { addSwiftSupportCmd } from "./commands/swiftSupport";
+import { gotoAttachmentManifestLocationCmd } from "./commands/gotoattachmentlocation";
 
 export function registerAllCommands(manager: ExtensionManager) {
   manager.registerCommand("lint", async () => lintCmd(manager));
@@ -35,8 +38,10 @@ export function registerAllCommands(manager: ExtensionManager) {
   manager.registerCommand("updateinternalstate", async () => updateInternalState(manager));
   manager.registerCommand("opendocs", async () => openDocsCmd(manager));
   manager.registerCommand("opencommand", async (...args: any[]) => openCommandCmd(manager, args));
+  manager.registerCommand("openattachment", async (...args: any[]) => openAttachmentCmd(manager, args));
   manager.registerCommand("searchdocs", async () => searchDocsCmd(manager));
   manager.registerCommand("addcommand", async () => addCommandCmd(manager));
+  manager.registerCommand("addattachment", async () => addAttachmentCmd(manager));
   manager.registerCommand("addpreference", async (...args: any[]) => addPreferenceCmd(manager, args));
   manager.registerCommand("addcommandpreference", async (...args: any[]) => addCommandPreferenceCmd(manager, args));
   manager.registerCommand("insertimageasset", async () => insertImageAssetCmd(manager));
@@ -49,6 +54,9 @@ export function registerAllCommands(manager: ExtensionManager) {
     gotoPreferenceManifestLocationCmd(manager, args),
   );
   manager.registerCommand("goto.command", async (...args: any[]) => gotoCommandManifestLocationCmd(manager, args));
+  manager.registerCommand("goto.attachment", async (...args: any[]) =>
+    gotoAttachmentManifestLocationCmd(manager, args),
+  );
   manager.registerCommand("goto.command.mode", async (...args: any[]) =>
     gotoCommandModeManifestLocationCmd(manager, args),
   );

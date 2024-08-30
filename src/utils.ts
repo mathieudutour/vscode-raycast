@@ -61,3 +61,43 @@ export function deduplicate(arr: string[] | undefined) {
     return index === self.indexOf(elem);
   });
 }
+
+export function toCamelCase(s?: string) {
+  if (!s) {
+    return s;
+  }
+  s = s.trim();
+  if (!s) {
+    return s;
+  }
+
+  let result = "";
+  let capNext = true;
+  for (let i = 0; i < s.length; i++) {
+    let v = s.charCodeAt(i);
+    const vIsCap = v >= 65 && v <= 90; // 'A' to 'Z'
+    const vIsLow = v >= 97 && v <= 122; // 'a' to 'z'
+
+    if (capNext) {
+      if (vIsLow) {
+        v -= 32; // Convert to uppercase
+      }
+    } else if (i === 0) {
+      if (vIsCap) {
+        v += 32; // Convert to lowercase
+      }
+    }
+
+    if (vIsCap || vIsLow) {
+      result += String.fromCharCode(v);
+      capNext = false;
+    } else if (v >= 48 && v <= 57) {
+      // '0' to '9'
+      result += String.fromCharCode(v);
+      capNext = true;
+    } else {
+      capNext = s[i] === "_" || s[i] === " " || s[i] === "-" || s[i] === ".";
+    }
+  }
+  return result;
+}

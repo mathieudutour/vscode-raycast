@@ -1,14 +1,18 @@
 import { ExtensionManager } from "../manager";
 import * as vscode from "vscode";
 import path = require("path");
-import { capitalizeFirstLetter, fileExists, showTextDocumentAtPosition } from "../utils";
+import { capitalizeFirstLetter, fileExists, showTextDocumentAtPosition, toCamelCase } from "../utils";
 import * as fs from "fs";
 import { Command, Manifest } from "../manifest";
 import editJsonFile = require("edit-json-file");
 import { showCustomQuickPick } from "../picker";
 import { getAssetsFromFolder } from "../assets";
 
-async function askName(cmd: Command, existingCmds: string[]): Promise<string | undefined> {
+async function askName(
+  cmd: Command,
+  existingCmds: string[],
+  existingAttachments: string[],
+): Promise<string | undefined> {
   const result = await vscode.window.showInputBox({
     title: "Name",
     placeHolder: "Enter Command Name",
@@ -20,7 +24,10 @@ async function askName(cmd: Command, existingCmds: string[]): Promise<string | u
         return "Command Name needs to have at least 2 characters";
       }
       if (existingCmds.includes(text)) {
-        return "Command already exists";
+        return "Command with the same name already exists";
+      }
+      if (existingAttachments.includes(text)) {
+        return "Attachment with the same name already exists";
       }
       const pattern = /^[a-zA-Z0-9-._~]*$/;
       if (!pattern.test(text)) {
@@ -182,15 +189,6 @@ export function makeCommandFilename(name: string | undefined) {
   return result;
 }
 
-export function makeCommandFunctionName(name: string | undefined) {
-  if (!name) {
-    return name;
-  }
-  let result = capitalizeFirstLetter(name) ?? "";
-  result = result.replaceAll(/[_\s-\.~]/g, "");
-  return result;
-}
-
 export async function addCommandCmd(manager: ExtensionManager) {
   manager.logger.debug("add command to package.json");
   const ws = manager.getActiveWorkspace();
@@ -200,7 +198,11 @@ export async function addCommandCmd(manager: ExtensionManager) {
       const bytes = await fs.promises.readFile(pkgJSON);
       const manifest = JSON.parse(bytes.toString()) as Manifest;
       const cmd: Command = {};
-      const commandID = await askName(cmd, manifest.commands?.map((c) => c.name || "") || []);
+      const commandID = await askName(
+        cmd,
+        manifest.commands?.map((c) => c.name || "") || [],
+        manifest.attachments?.map((c) => c.name || "") || [],
+      );
       if (commandID) {
         if ((await askTitle(cmd)) === undefined) {
           return;
@@ -237,7 +239,7 @@ export async function addCommandCmd(manager: ExtensionManager) {
           let lines: string[] = [
             'import { List } from "@raycast/api";',
             "",
-            `export default function ${makeCommandFunctionName(cmd.name)}Command() {`,
+            `export default function ${toCamelCase(cmd.name)}Command() {`,
             "  return <List />;",
             "}",
             "",
@@ -248,7 +250,7 @@ export async function addCommandCmd(manager: ExtensionManager) {
                 lines = [
                   'import { showToast, Toast } from "@raycast/api";',
                   "",
-                  "export default async function Main() {",
+                  `export default async function ${toCamelCase(cmd.name)}Command() {`,
                   '  await showToast(Toast.Style.Failure, "example no-view command");',
                   "}",
                   "",
@@ -260,7 +262,7 @@ export async function addCommandCmd(manager: ExtensionManager) {
                 lines = [
                   'import { MenuBarExtra, showHUD } from "@raycast/api";',
                   "",
-                  "export default function MenuCommand() {",
+                  `export default function ${toCamelCase(cmd.name)}Command() {`,
                   "  return (",
                   '    <MenuBarExtra title="My Menu">',
                   '      <MenuBarExtra.Item title="Child" onAction={() => showHUD("Child Menu from Menubar")} />',

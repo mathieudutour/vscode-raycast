@@ -23,6 +23,16 @@ export interface Command {
   arguments?: Argument[];
   interval?: string;
   disabledByDefault?: boolean;
+  keywords?: string[];
+}
+
+export interface AIAttachmentProvider {
+  name?: string;
+  title?: string;
+  keywords?: string[];
+  description?: string;
+  mode?: string;
+  icon?: string;
 }
 
 export interface PreferenceData {
@@ -64,6 +74,7 @@ export interface Manifest {
   owner?: string;
   description?: string;
   commands?: Command[];
+  attachments?: AIAttachmentProvider[];
   preferences?: Preference[];
   dependencies?: Record<string, string>;
 }
